@@ -66,8 +66,31 @@ export default function Episode({ episode } : EpisodeProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  // busca os 2 últimos episódios cadastrados para que
+  // possam ser pre-carregados no array "paths", logo abaixo
+  const { data } = await api.get('episodes', {
+    params: {
+      _limit: 2,
+      _sort: 'published_at',
+      _order: 'desc'
+    }
+  })
+
+  // monta o objeto de parametros para retornar abaixo,
+  // e configura para que apenas os dois episodios buscados
+  // acima sejam pre-configurados (pois é ruim pré-carregar todos)
+  const paths = data.map(episode => {
+    return {
+      params : {
+        slug: episode.id
+      }
+    }
+  })
+
+  // paths recebe a variável do array montado acima,
+  // com os parâmetros da requisição
 	return {
-		paths: [],
+		paths,
 		fallback: 'blocking',
 	};
 };
